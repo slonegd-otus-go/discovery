@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
-	"github.com/slonegd-otus-go/discovery/nats/oldstructs" // change
+	v1 "github.com/slonegd-otus-go/discovery/v1"
 )
 
 type natsRegistry struct {
@@ -148,13 +148,13 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 		// create a subscriber that responds to queries
 		sub, err := conn.Subscribe(n.queryTopic, func(m *nats.Msg) {
-			var result *oldstructs.Result // change
+			var result *v1.Result // change
 
 			if err := json.Unmarshal(m.Data, &result); err != nil {
 				return
 			}
 
-			var services []*oldstructs.Service // change
+			var services []*registry.Service
 
 			switch result.Action {
 			// is this a get query and we own the service?
@@ -179,7 +179,8 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 			// respond to query
 			for _, service := range services {
-				b, err := json.Marshal(service)
+				v1Service := v1.ConvertToV1(service)
+				b, err := json.Marshal(v1Service)
 				if err != nil {
 					continue
 				}

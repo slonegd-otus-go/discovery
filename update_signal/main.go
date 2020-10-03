@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
 	http_client "github.com/micro/go-plugins/client/http/v2"
@@ -35,15 +35,13 @@ func main() {
 
 	log.Printf("send update configuration signal via micro")
 
-	service := micro.NewService(
-		micro.Name("test.update_signal"),
-		micro.Registry(registry),
-		micro.Client(http_client.NewClient()),
+	client := http_client.NewClient(
+		client.Registry(registry),
 	)
 
-	request := service.Client().NewRequest("sedmax.web.signals", "/update/configuration", nil)
+	request := client.NewRequest("sedmax.web.signals", "/update/configuration", nil)
 	var microResponse interface{}
-	err = service.Client().Call(context.Background(), request, &microResponse)
+	err = client.Call(context.Background(), request, &microResponse)
 	if err != nil {
 		log.Fatal(err)
 	}

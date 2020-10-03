@@ -33,13 +33,21 @@ func main() {
 	}
 	log.Printf("response: %+v", response)
 
-	log.Printf("send update configuration signal via micro")
+	log.Printf("read archive via micro")
 
+	// в плагине http клиента есть фильтр, который ищет только http сервера
+	// соответсвенно сервера должны быть как то помечены, но у нас нет
+	// поэтому всегда не находит, но если его закомментировать, то работает
+	// only get the things that are of mucp protocol
+	// selectOptions := append(opts.SelectOptions, selector.WithFilter(
+	// 	selector.FilterLabel("protocol", "http"),
+	// ))
 	client := http_client.NewClient(
-		client.Registry(registry),
+		client.Selector(selector),
+		client.ContentType("application/json"),
 	)
+	request := client.NewRequest("sedmax.web.signals", "/read_archive", "{}")
 
-	request := client.NewRequest("sedmax.web.signals", "/update/configuration", nil)
 	var microResponse interface{}
 	err = client.Call(context.Background(), request, &microResponse)
 	if err != nil {
@@ -48,4 +56,25 @@ func main() {
 	log.Printf("response: %+v", microResponse)
 
 	time.Sleep(time.Second)
+}
+
+type ReadArchiveCommand struct {
+	// Идентификатор устройства
+	// Required: true
+	// Example: 1000
+	DeviceID int `json:"device_id"`
+	// Начало интервала, дата в формате YYYY-MM-DD HH:MI:SS
+	// Required: true
+	// Example: 2019-03-21
+	BeginDateTime string `json:"begin"`
+	// Конец интервала, дата в формате YYYY-MM-DD HH:MI:SS
+	// Required: true
+	// Example: 2019-03-22
+	EndDateTime string `json:"end"`
+	// Читать или не читать почасовые архивы
+	// Required: true
+	IsReadArchive bool `json:"is_read_archive"`
+	// Читать или не читать журналы событий
+	// Required: true
+	IsReadEventJournal bool `json:"is_read_event_journal"`
 }

@@ -179,7 +179,7 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 			// respond to query
 			for _, service := range services {
-				v1Service := v1.ConvertToV1(service)
+				v1Service := v1.ConvertServiceToV1(service)
 				b, err := json.Marshal(v1Service)
 				if err != nil {
 					continue

@@ -3,49 +3,43 @@ package v1
 import (
 	"strconv"
 	"strings"
+	"fmt"
 
 	"github.com/micro/go-micro/v2/registry"
 )
 
-// func Copy(current []*Service) []*registry.Service {
-// 	var services []*registry.Service
+func ConvertServiceToV2(service *Service) *registry.Service {
+		// copy service
+		s := &registry.Service{
+			Name:     service.Name,
+			Version:  service.Version,
+			Metadata: service.Metadata,
+		}
 
-// 	for _, service := range current {
-// 		// copy service
-// 		s := &registry.Service{
-// 			Name:     service.Name,
-// 			Version:  service.Version,
-// 			Metadata: service.Metadata,
-// 		}
+		// copy nodes
+		var nodes []*registry.Node
+		for _, node := range service.Nodes {
+			nodes = append(nodes, &registry.Node{
+				Id:       node.Id,
+				Address:  fmt.Sprintf("%s:%d", node.Address, node.Port),
+				Metadata: node.Metadata,
+			})
+		}
+		s.Nodes = nodes
 
-// 		// copy nodes
-// 		var nodes []*registry.Node
-// 		for _, node := range service.Nodes {
-// 			nodes = append(nodes, &registry.Node{
-// 				Id:       node.Id,
-// 				Address:  fmt.Sprintf("%s:%d", node.Address, node.Port),
-// 				Metadata: node.Metadata,
-// 			})
-// 		}
-// 		s.Nodes = nodes
+		// copy endpoints
+		var eps []*registry.Endpoint
+		for _, ep := range service.Endpoints {
+			e := new(registry.Endpoint)
+			*e = *ep
+			eps = append(eps, e)
+		}
+		s.Endpoints = eps
 
-// 		// copy endpoints
-// 		var eps []*registry.Endpoint
-// 		for _, ep := range service.Endpoints {
-// 			e := new(registry.Endpoint)
-// 			*e = *ep
-// 			eps = append(eps, e)
-// 		}
-// 		s.Endpoints = eps
+	return s
+}
 
-// 		// append service
-// 		services = append(services, s)
-// 	}
-
-// 	return services
-// }
-
-func ConvertToV1(s *registry.Service) *Service {
+func ConvertServiceToV1(s *registry.Service) *Service {
 	result := &Service{
 		Name:     s.Name,
 		Version:  s.Version,
@@ -87,4 +81,12 @@ func ConvertToV1(s *registry.Service) *Service {
 	result.Endpoints = eps
 
 	return result
+}
+
+func ConvertResultToV2(result *Result) *registry.Result {
+	r := &registry.Result{
+		Action  : result.Action,
+		Service : ConvertServiceToV2(result.Service),
+	}
+	return r
 }

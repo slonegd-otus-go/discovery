@@ -2,10 +2,10 @@ package nats
 
 import (
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/slonegd-otus-go/nats/registry/v1_structs" // change
+	"github.com/slonegd-otus-go/discovery/nats/oldstructs" // change
 )
 
-func cp(current []*v1_structs.Service) []*registry.Service {
+func cp(current []*oldstructs.Service) []*registry.Service {
 	var services []*registry.Service
 
 	for _, service := range current {

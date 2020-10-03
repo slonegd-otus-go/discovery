@@ -5,12 +5,10 @@ import (
 	"os"
 
 	"github.com/slonegd-otus-go/discovery"
+	"github.com/slonegd-otus-go/discovery/nats"
 
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"
-
-	// "github.com/micro/go-plugins/registry/nats/v2"
-	"github.com/slonegd-otus-go/discovery/nats"
 )
 
 func main() {

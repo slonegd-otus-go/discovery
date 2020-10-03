@@ -1,4 +1,4 @@
-package registry_v1
+package oldstructs
 
 type Service struct {
 	Name      string            `json:"name"`

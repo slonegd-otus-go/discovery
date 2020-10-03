@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/slonegd-otus-go/registry_v1" // change
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
+	"github.com/slonegd-otus-go/v1_structs" // change
 )
 
 type natsRegistry struct {
@@ -148,13 +148,13 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 		// create a subscriber that responds to queries
 		sub, err := conn.Subscribe(n.queryTopic, func(m *nats.Msg) {
-			var result *registry_v1.Result // change
+			var result *v1_structs.Result // change
 
 			if err := json.Unmarshal(m.Data, &result); err != nil {
 				return
 			}
 
-			var services []*registry_v1.Service // change
+			var services []*v1_structs.Service // change
 
 			switch result.Action {
 			// is this a get query and we own the service?

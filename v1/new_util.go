@@ -19,9 +19,13 @@ func ConvertServiceToV2(service *Service) *registry.Service {
 		// copy nodes
 		var nodes []*registry.Node
 		for _, node := range service.Nodes {
+			address := node.Address
+			if len(strings.Split(address, ":")) == 1 {
+				address = fmt.Sprintf("%s:%d", address, node.Port)
+			}
 			nodes = append(nodes, &registry.Node{
 				Id:       node.Id,
-				Address:  fmt.Sprintf("%s:%d", node.Address, node.Port),
+				Address:  address,
 				Metadata: node.Metadata,
 			})
 		}

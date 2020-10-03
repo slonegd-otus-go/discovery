@@ -148,7 +148,7 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 		// create a subscriber that responds to queries
 		sub, err := conn.Subscribe(n.queryTopic, func(m *nats.Msg) {
-			var result *v1.Result // change
+			var result *v1.Result // var result *registry.Result
 
 			if err := json.Unmarshal(m.Data, &result); err != nil {
 				return
@@ -247,12 +247,12 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 	response := make(chan *registry.Service, 10)
 
 	sub, err := conn.Subscribe(inbox, func(m *nats.Msg) {
-		var service *registry.Service
+		var service *v1.Service // var service *registry.Service
 		if err := json.Unmarshal(m.Data, &service); err != nil {
 			return
 		}
 		select {
-		case response <- service:
+		case response <- v1.ConvertServiceToV2(service): // case response <- service:
 		case <-time.After(n.opts.Timeout):
 		}
 	})
@@ -261,7 +261,8 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 	}
 	defer sub.Unsubscribe()
 
-	b, err := json.Marshal(&registry.Result{Action: action, Service: service})
+	// b, err := json.Marshal(&registry.Result{Action: action, Service: service})
+	b, err := json.Marshal(&v1.Result{Action: action, Service: v1.ConvertServiceToV1(service)})
 	if err != nil {
 		return nil, err
 	}

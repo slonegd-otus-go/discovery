@@ -1,4 +1,4 @@
-package v1
+package convert
 
 import (
 	"strconv"
@@ -8,7 +8,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 )
 
-func ConvertServiceToV2(service *Service) *registry.Service {
+func ServiceToV2(service *Service) *registry.Service {
 		// copy service
 		s := &registry.Service{
 			Name:     service.Name,
@@ -43,7 +43,7 @@ func ConvertServiceToV2(service *Service) *registry.Service {
 	return s
 }
 
-func ConvertServiceToV1(s *registry.Service) *Service {
+func ServiceToV1(s *registry.Service) *Service {
 	result := &Service{
 		Name:     s.Name,
 		Version:  s.Version,
@@ -87,10 +87,10 @@ func ConvertServiceToV1(s *registry.Service) *Service {
 	return result
 }
 
-func ConvertResultToV2(result *Result) *registry.Result {
+func ResultToV2(result *Result) *registry.Result {
 	r := &registry.Result{
 		Action  : result.Action,
-		Service : ConvertServiceToV2(result.Service),
+		Service : ServiceToV2(result.Service),
 	}
 	return r
 }

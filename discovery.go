@@ -1,4 +1,3 @@
-// копипаст из git.sedmax.ru/KIT/interservice - не работает с модулями
 package discovery
 
 import (
@@ -25,9 +24,5 @@ func (discovery *Discovery) GetAddress(serviceName string) (string, error) {
 		return "", fmt.Errorf("got the next node for service %s failed: %s", serviceName, err)
 	}
 
-	addr := node.Address
-	// if node.Port > 0 {
-	// 	addr = fmt.Sprintf("http://%s:%d", addr, node.Port)
-	// }
-	return addr, nil
+	return node.Address, nil
 }

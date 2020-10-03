@@ -1,4 +1,4 @@
-package v1
+package convert
 
 import "github.com/micro/go-micro/v2/registry"
 

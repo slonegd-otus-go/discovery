@@ -3,7 +3,6 @@ package nats
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"sync"
 	"time"
@@ -11,7 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
-	"github.com/slonegd-otus-go/discovery/registry/nats/convert"
+	"github.com/slonegd-otus-go/discovery/json"
 )
 
 type natsRegistry struct {
@@ -148,7 +147,7 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 		// create a subscriber that responds to queries
 		sub, err := conn.Subscribe(n.queryTopic, func(m *nats.Msg) {
-			var result *convert.Result // var result *registry.Result
+			var result *registry.Result
 
 			if err := json.Unmarshal(m.Data, &result); err != nil {
 				return
@@ -179,8 +178,7 @@ func (n *natsRegistry) register(s *registry.Service) error {
 
 			// respond to query
 			for _, service := range services {
-				v1Service := convert.ServiceToV1(service)
-				b, err := json.Marshal(v1Service)
+				b, err := json.Marshal(service)
 				if err != nil {
 					continue
 				}
@@ -247,12 +245,12 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 	response := make(chan *registry.Service, 10)
 
 	sub, err := conn.Subscribe(inbox, func(m *nats.Msg) {
-		var service *convert.Service // var service *registry.Service
+		var service *registry.Service
 		if err := json.Unmarshal(m.Data, &service); err != nil {
 			return
 		}
 		select {
-		case response <- convert.ServiceToV2(service): // case response <- service:
+		case response <- service:
 		case <-time.After(n.opts.Timeout):
 		}
 	})
@@ -261,8 +259,7 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 	}
 	defer sub.Unsubscribe()
 
-	// b, err := json.Marshal(&registry.Result{Action: action, Service: service})
-	b, err := json.Marshal(&convert.Result{Action: action, Service: convert.ServiceToV1(service)})
+	b, err := json.Marshal(&registry.Result{Action: action, Service: service})
 	if err != nil {
 		return nil, err
 	}

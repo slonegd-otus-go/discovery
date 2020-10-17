@@ -6,8 +6,6 @@ import (
 
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
-
-	"github.com/slonegd-otus-go/discovery/registry/nats/convert"
 )
 
 type natsWatcher struct {
@@ -16,7 +14,7 @@ type natsWatcher struct {
 }
 
 func (n *natsWatcher) Next() (*registry.Result, error) {
-	var result *convert.Result // var result *registry.Result
+	var result *registry.Result
 	for {
 		m, err := n.sub.NextMsg(time.Minute)
 		if err != nil && err == nats.ErrTimeout {
@@ -33,7 +31,7 @@ func (n *natsWatcher) Next() (*registry.Result, error) {
 		break
 	}
 
-	return convert.ResultToV2(result), nil // return result, nil
+	return result, nil
 }
 
 func (n *natsWatcher) Stop() {

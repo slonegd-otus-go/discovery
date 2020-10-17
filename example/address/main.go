@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/slonegd-otus-go/discovery/example/discovery"
-	nats "github.com/slonegd-otus-go/discovery"
+	"github.com/slonegd-otus-go/nats_registry/example/discovery"
+	nats "github.com/slonegd-otus-go/nats_registry"
 
 	"github.com/micro/go-micro/v2/client/selector"
 	"github.com/micro/go-micro/v2/registry"

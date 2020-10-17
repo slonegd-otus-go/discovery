@@ -7,7 +7,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
 
-	"github.com/slonegd-otus-go/discovery/json" // changes from fork
+	"github.com/slonegd-otus-go/nats_registry/json" // changes from fork
 )
 
 type natsWatcher struct {

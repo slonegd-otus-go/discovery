@@ -1,6 +1,6 @@
 all:
-	go build -o discovery -mod vendor ./example/address/
-	go build -o http -mod vendor ./example/http
+	go build -o discovery -mod vendor ./address/
+	go build -o http -mod vendor ./http
 
 clean:
 	rm -rf ./vendor

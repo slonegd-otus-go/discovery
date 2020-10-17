@@ -2,7 +2,7 @@ package json
 
 import (
 	"encoding/json"
-	"strconv"
+	"fmt"
 	"strings"
 
 	"github.com/micro/go-micro/v2/registry"
@@ -23,9 +23,33 @@ type Node struct {
 	Metadata map[string]string `json:"metadata"`
 }
 
-func Unmarshal(data []byte, v *registry.Service) error {
-	v1 := convert(v)
-	return json.Unmarshal(data, &v1)
+type Result struct {
+	Action  string
+	Service *Service
+}
+
+func Unmarshal(data []byte, v interface{}) error {
+	switch v.(type) {
+	case *registry.Service:
+		var service *Service
+		err := json.Unmarshal(data, &service)
+		if err != nil {
+			return err
+		}
+		v = serviceToV2(service)
+		return nil
+
+	case *registry.Result:
+		var result *Result
+		err := json.Unmarshal(data, &result)
+		if err != nil {
+			return err
+		}
+		v = resultToV2(result)
+		return nil
+	}
+
+	return fmt.Errorf("unknow type: %T", v)
 }
 
 func Marshal(v interface{}) ([]byte, error) {
@@ -33,46 +57,45 @@ func Marshal(v interface{}) ([]byte, error) {
 	return data, err
 }
 
-func convert(s *registry.Service) *Service {
-	result := &Service{
-		Name:     s.Name,
-		Version:  s.Version,
-		Metadata: s.Metadata,
+func serviceToV2(service *Service) *registry.Service {
+	// copy service
+	s := &registry.Service{
+		Name:     service.Name,
+		Version:  service.Version,
+		Metadata: service.Metadata,
 	}
 
 	// copy nodes
-	var nodes []*Node
-	for _, node := range s.Nodes {
+	var nodes []*registry.Node
+	for _, node := range service.Nodes {
 		address := node.Address
-		port := 0
-		strs := strings.Split(node.Address, ":")
-		if len(strs) == 2 {
-			address = strs[0]
-			i, err := strconv.Atoi(strs[1])
-			if err == nil {
-				port = i
-			}
+		if len(strings.Split(address, ":")) == 1 {
+			address = fmt.Sprintf("%s:%d", address, node.Port)
 		}
-		if len(strs) == 1 {
-			address = strs[0]
-		}
-		nodes = append(nodes, &Node{
+		nodes = append(nodes, &registry.Node{
 			Id:       node.Id,
 			Address:  address,
-			Port:     port,
 			Metadata: node.Metadata,
 		})
 	}
-	result.Nodes = nodes
+	s.Nodes = nodes
 
 	// copy endpoints
 	var eps []*registry.Endpoint
-	for _, ep := range s.Endpoints {
+	for _, ep := range service.Endpoints {
 		e := new(registry.Endpoint)
 		*e = *ep
 		eps = append(eps, e)
 	}
-	result.Endpoints = eps
+	s.Endpoints = eps
 
-	return result
+	return s
+}
+
+func resultToV2(result *Result) *registry.Result {
+	r := &registry.Result{
+		Action:  result.Action,
+		Service: serviceToV2(result.Service),
+	}
+	return r
 }

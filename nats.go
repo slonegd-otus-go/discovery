@@ -10,7 +10,7 @@ import (
 	"github.com/micro/go-micro/v2/config/cmd"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
-	"github.com/slonegd-otus-go/discovery/json"
+	"github.com/slonegd-otus-go/discovery/json" // changes from fork
 )
 
 type natsRegistry struct {

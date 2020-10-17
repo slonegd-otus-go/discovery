@@ -11,7 +11,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	http_client "github.com/micro/go-plugins/client/http/v2"
 
-	"github.com/slonegd-otus-go/discovery/discovery"
+	"github.com/slonegd-otus-go/discovery/example/discovery"
 	"github.com/slonegd-otus-go/discovery/registry/nats"
 )
 

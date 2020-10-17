@@ -6,7 +6,9 @@ import (
 
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-plugins/registry/nats/v2"
+
+	// "github.com/micro/go-plugins/registry/nats/v2" // changes from fork
+	nats "github.com/slonegd-otus-go/nats_registry" // changes from fork
 )
 
 type environment struct {

@@ -1,11 +1,13 @@
 package nats
 
 import (
-	"encoding/json"
+	// "encoding/json" // changes from fork
 	"time"
 
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/nats-io/nats.go"
+
+	"github.com/slonegd-otus-go/discovery/json" // changes from fork
 )
 
 type natsWatcher struct {

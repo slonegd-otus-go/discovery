@@ -3,7 +3,6 @@ package json
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -33,26 +32,21 @@ type Result struct {
 func Unmarshal(data []byte, v interface{}) error {
 	switch value := v.(type) {
 	case **registry.Service:
-		log.Printf("**registry.Service")
 		var service *Service
 		err := json.Unmarshal(data, &service)
 		if err != nil {
 			return err
 		}
-		log.Printf("got %+v", service)
-		log.Printf("got nodes %+v", *service.Nodes[0])
 		*value = convertToV2Service(service)
 		return nil
 
 	case **registry.Result:
-		log.Printf("**registry.Result")
 		var result *Result
 		err := json.Unmarshal(data, &result)
 		if err != nil {
 			return err
 		}
 		*value = convertToV2Result(result)
-		log.Printf("got %+v", value)
 		return nil
 	}
 
@@ -60,34 +54,18 @@ func Unmarshal(data []byte, v interface{}) error {
 }
 
 func Marshal(v interface{}) ([]byte, error) {
-	// data, err := json.Marshal(v)
-	// return data, err
-	switch value := v.(type) {
-	case *registry.Service:
-		data, err := json.Marshal(convertToV1Service(value))
-		log.Printf("marshal %s", string(data))
-		return data, err
-
-	case *registry.Result:
-		result := &Result{
-			Action:  value.Action,
-			Service: convertToV1Service(value.Service),
-		}
-		data, err := json.Marshal(result)
-		log.Printf("marshal %s", string(data))
-		return data, err
-	}
-	return nil, fmt.Errorf("unknow type: %T", v)
+	data, err := json.Marshal(v)
+	return data, err
 }
 
 func convertToV2Service(service1 *Service) *registry.Service {
 	// copy service
-	service2 := &registry.Service{}
-	service2.Name = service1.Name
-	service2.Version = service1.Version
-	service2.Metadata = service1.Metadata
-	service2.Metadata = map[string]string{"protocol": "http"}
-	service2.Endpoints = service1.Endpoints
+	result := &registry.Service{
+		Name:      service1.Name,
+		Version:   service1.Version,
+		Metadata:  service1.Metadata,
+		Endpoints: service1.Endpoints,
+	}
 
 	// copy nodes
 	var nodes []*registry.Node
@@ -102,9 +80,9 @@ func convertToV2Service(service1 *Service) *registry.Service {
 			Metadata: node.Metadata,
 		})
 	}
-	service2.Nodes = nodes
+	result.Nodes = nodes
 
-	return service2
+	return result
 }
 
 func convertToV2Result(result1 *Result) *registry.Result {
